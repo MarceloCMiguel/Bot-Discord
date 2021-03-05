@@ -85,6 +85,11 @@ async def play(ctx, *, question):
             audio_source = discord.FFmpegPCMAudio(f'./audios/{audio}')
             if not voice_client.is_playing():
                 voice_client.play(audio_source, after=None)
+        else:
+            await ctx.send("Opa, essa música n existe.\ndigite '.msg lista' para saber a lista de musicas que vc pode colocar")
+    
+
+
 
 @client.command(description="stops and disconnects the bot from voice")
 async def leave(ctx):
