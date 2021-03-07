@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-
+import os
 
 # client = discord.Client()
 client = commands.Bot(command_prefix='.')
@@ -46,4 +46,4 @@ async def msg(ctx, *, question):
     else:
         await ctx.send("Opa, ese comando n existe.\ndigite '.msg lista' para saber a lista de amiguinhos que vc pode usar")
 
-client.run("ODE2MzgxMjcwMzcxNzI5NDA5.YD6ITg.zk4-4VD1CkdQQLG3KlUAaLyuHgw")
+client.run(os.getenv('TOKEN'))
