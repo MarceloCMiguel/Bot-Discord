@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from forex_python.converter import CurrencyRates
 import os
 import random
+import youtube_dl
 load_dotenv()
 
 # client = discord.Client()
@@ -20,12 +21,13 @@ amiguinhos= {
     'amanda':'challenger no lol',
     'sulley':'deus de modcom',
     'sophia':'pitanguinha <3',
-    'bilbs': 'namora cmg tbm hehe'
+    'bilbs': 'namora cmg hehe'
 }
 
 lista_audios=[]
 for filename in os.listdir('./audios'):
     lista_audios.append(filename)
+
 
 @client.event
 async def on_ready():
@@ -56,13 +58,10 @@ async def msg(ctx, *, question):
     # Digitou errado
     else:
         await ctx.send("Opa, ese comando n existe.\ndigite '.msg lista' para saber a lista de amiguinhos que vc pode usar")
-    
-
-
 
 @client.command(aliases=['paly', 'queue', 'que'])
-async def play(ctx, *, question):
-    # FAZ ELE ENTRAR NA CALL
+async def audio(ctx, *, question):
+        # FAZ ELE ENTRAR NA CALL
     if ctx.author.voice is None or ctx.author.voice.channel is None:
         return await ctx.send('Entre num canal para usar esse comando!')
 
@@ -76,7 +75,7 @@ async def play(ctx, *, question):
 
     # listinha de amigos disponivel
     if question.lower() == "lista":
-        await ctx.send(' | '.join(lista_audios))
+        await ctx.send("Lista de audiozinhos: "+' | '.join(lista_audios))
         return
     for audio in lista_audios:
         if audio == question:         
@@ -84,12 +83,49 @@ async def play(ctx, *, question):
             voice_client: discord.VoiceClient = discord.utils.get(client.voice_clients, guild=guild)
             audio_source = discord.FFmpegPCMAudio(f'./audios/{audio}')
             if not voice_client.is_playing():
+                await ctx.send(f"tocando audiozinho {audio}")    
                 voice_client.play(audio_source, after=None)
-        else:
-            await ctx.send("Opa, essa música n existe.\ndigite '.msg lista' para saber a lista de musicas que vc pode colocar")
+            return
+    else:
+        await ctx.send("Opa, esse audio n existe.\ndigite '.audio lista' para saber a lista de musicas que vc pode colocar")
     
+@client.command()
+async def play(ctx, url : str):
+    song_there = os.path.isfile("song.mp3")
+    try:
+        if song_there:
+            os.remove("song.mp3")
+    except PermissionError:
+        await ctx.send("Wait for the current playing music to end or use the 'stop' command")
+        return
 
+        # FAZ ELE ENTRAR NA CALL
+    if ctx.author.voice is None or ctx.author.voice.channel is None:
+        return await ctx.send('Entre num canal para usar esse comando!')
+            
+    voice_channel = ctx.author.voice.channel
+    if ctx.voice_client is None:
+        vc = await voice_channel.connect()
+    else:
+        await ctx.voice_client.move_to(voice_channel)
+        vc = ctx.voice_client
 
+    ydl_opts = {
+        'format': 'bestaudio/best',
+        'postprocessors': [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'mp3',
+            'preferredquality': '100',
+        }],
+    }
+    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        ydl.download([url])
+    for file in os.listdir("./"):
+        if file.endswith(".mp3"):
+            os.rename(file, "song.mp3")
+    guild = ctx.guild
+    voice_client: discord.VoiceClient = discord.utils.get(client.voice_clients, guild=guild)
+    voice_client.play(discord.FFmpegPCMAudio("song.mp3"))
 
 @client.command(description="stops and disconnects the bot from voice")
 async def leave(ctx):
