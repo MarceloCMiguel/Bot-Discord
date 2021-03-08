@@ -5,11 +5,12 @@ from forex_python.converter import CurrencyRates
 import os
 import random
 import youtube_dl
+import time
 load_dotenv()
 
 # client = discord.Client()
 client = commands.Bot(command_prefix='.')
-
+intents = discord.Intents().all()
 amiguinhos= {
     'marcelo':'o mais brabo',
     'pedrao':'god demais',
@@ -27,6 +28,7 @@ amiguinhos= {
 lista_audios=[]
 for filename in os.listdir('./audios'):
     lista_audios.append(filename)
+
 
 
 @client.event
@@ -126,6 +128,26 @@ async def play(ctx, url : str):
     guild = ctx.guild
     voice_client: discord.VoiceClient = discord.utils.get(client.voice_clients, guild=guild)
     voice_client.play(discord.FFmpegPCMAudio("song.mp3"))
+
+
+@client.command()
+async def acorda(ctx,*,question):
+    await ctx.send(ctx.guild.get_member_named(question))
+    member = ctx.guild.get_member_named(question)
+    
+    voice_channel_list = ctx.guild.voice_channels
+    voice_channel = ctx.author.voice.channel
+    i=0
+    while i< 5:
+        await member.move_to(random.choice(voice_channel_list))
+        # await ctx.member.move_to(random.choice(voice_channel_list))
+        time.sleep(0.25)
+        i+=1
+
+    #volta pro canal original
+    await member.move_to(voice_channel)
+
+
 
 @client.command(description="stops and disconnects the bot from voice")
 async def leave(ctx):
