@@ -25,10 +25,11 @@ amiguinhos= {
     'bilbs': 'namora cmg hehe'
 }
 
-lista_audios=[]
-for filename in os.listdir('./audios'):
-    lista_audios.append(filename)
-
+# lista_audios=[]
+# for filename in os.listdir('./audios'):
+#     filename.replace('.mp3','')
+#     lista_audios.append(filename)
+lista_audios = [s.replace('.mp3','') for s in os.listdir('./audios')]
 
 
 @client.event
@@ -63,6 +64,11 @@ async def msg(ctx, *, question):
 
 @client.command(aliases=['paly', 'queue', 'que'])
 async def audio(ctx, *, question):
+
+    # listinha de amigos disponivel
+    if question.lower() == "lista":
+        await ctx.send("Lista de audiozinhos: "+' | '.join(lista_audios))
+        return
         # FAZ ELE ENTRAR NA CALL
     if ctx.author.voice is None or ctx.author.voice.channel is None:
         return await ctx.send('Entre num canal para usar esse comando!')
@@ -75,15 +81,12 @@ async def audio(ctx, *, question):
         vc = ctx.voice_client
     # JA ENTROU NA CALL AGORA TOCA MÚSICA
 
-    # listinha de amigos disponivel
-    if question.lower() == "lista":
-        await ctx.send("Lista de audiozinhos: "+' | '.join(lista_audios))
-        return
+    
     for audio in lista_audios:
-        if audio == question:         
+        if audio.startswith(question):         
             guild = ctx.guild
             voice_client: discord.VoiceClient = discord.utils.get(client.voice_clients, guild=guild)
-            audio_source = discord.FFmpegPCMAudio(f'./audios/{audio}')
+            audio_source = discord.FFmpegPCMAudio(f'./audios/{audio}.mp3')
             if not voice_client.is_playing():
                 await ctx.send(f"tocando audiozinho {audio}")    
                 voice_client.play(audio_source, after=None)
