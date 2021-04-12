@@ -135,9 +135,18 @@ async def play(ctx, url : str):
 
 @client.command()
 async def acorda(ctx,*,question):
-    await ctx.send(ctx.guild.get_member_named(question))
-    member = ctx.guild.get_member_named(question)
+    username = ctx.message.author.name
+    if username == "YAMA":
+        member = "YAMA#7430"
+        await ctx.send("Caiu no bait yaminha seu zé bunda hehe")
+    else:
+        member = ctx.guild.get_member_named(question)
     
+    if member != None:
+        await ctx.send(f"Acorda ai {member} o coisa linda ")
+    else:
+        await ctx.send(f"Não consegui encontrar o {question}")
+        return
     voice_channel_list = ctx.guild.voice_channels
     voice_channel = ctx.author.voice.channel
     i=0
@@ -160,5 +169,11 @@ async def leave(ctx):
     else:
         await ctx.voice_client.disconnect()
         await ctx.send('Bot left')
+
+@client.command()
+async def name(ctx,question):
+    
+    await ctx.send(f"{username}")
+
 
 client.run(os.getenv('TOKEN'))
